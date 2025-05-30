@@ -30,6 +30,15 @@ Quat X/Y/Z: 3D rotation
 
 Zoom: scale the view
 
+## Requirements
+
+numpy>=1.21.0
+scipy>=1.7.0
+matplotlib>=3.4.0
+
+tkinter is included with most Python installs; on Linux you may need:
+python3-tk
+
 ## License
 
 This project is licensed under the MIT License. See LICENSE for details.
