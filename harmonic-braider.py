@@ -1,4 +1,3 @@
-```python
 # Harmonic Braiding • Tkinter GUI (Improved Sliders with Documentation)
 #
 # Mathematical Formulation:
@@ -182,4 +181,3 @@ if __name__ == '__main__':
     root = tk.Tk()
     app = BraiderApp(root)
     root.mainloop()
-```
