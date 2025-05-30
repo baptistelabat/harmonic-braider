@@ -9,6 +9,7 @@ A simple mathematical sandbox enabling harmonic frequencies to morph into 3D bra
 git clone https://github.com/your-username/harmonic-braider.git
 cd harmonic-braider
 pip install numpy scipy matplotlib
+```
 
 ## Usage
 
@@ -29,5 +30,7 @@ Quat X/Y/Z: 3D rotation
 
 Zoom: scale the view
 
-License
+## License
+
 This project is licensed under the MIT License. See LICENSE for details.
+Please feel free to use, expand, explore but would appreciate some credit if you do: iowyth hezel ulthiin. 
