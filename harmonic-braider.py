@@ -18,6 +18,8 @@
 #
 #   Finally, a quaternion [qx, qy, qz, qw=1] is normalized and applied to (x,y,z)
 #   to reorient the curve in 3D.
+#
+#   © 2025 iowyth hezel ulthiin
 
 from __future__ import annotations
 import numpy as np
