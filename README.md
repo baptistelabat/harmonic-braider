@@ -6,7 +6,7 @@ A simple mathematical sandbox enabling harmonic frequencies to morph into 3D bra
 ## Installation
 
 ```bash
-git clone https://github.com/your-username/harmonic-braider.git
+git clone https://github.com/your-username/braider.git
 cd harmonic-braider
 pip install numpy scipy matplotlib
 ```
