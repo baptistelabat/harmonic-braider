@@ -55,7 +55,7 @@ def braided_curve(
     # Base curve: superposition of three rotating sinusoids
     x = np.cos(H1 * t) + B * np.cos(H2 * t) + S * np.cos(H3 * t)
     y = np.sin(H1 * t) + B * np.sin(H2 * t) + S * np.sin(H3 * t)
-    z = np.sin(B * t) + S * np.cos(B * t)
+    z = np.sin(B * t) + S * np.cos(H3 * t)  # use H3 for sub-harmonic ripples in Z
 
     # Möbius twist: rotate XY by angle = twist * t
     theta = twist * t
