@@ -1,0 +1,8 @@
+# Core dependencies for Harmonic Braider
+
+numpy>=1.21.0
+scipy>=1.7.0
+matplotlib>=3.4.0
+
+# tkinter is included with most Python installs; on Linux you may need:
+# python3-tk
