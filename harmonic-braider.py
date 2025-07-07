@@ -1,35 +1,11 @@
-# Harmonic Braiding • Tkinter GUI (Improved Sliders with Documentation)
-#
-# Mathematical Formulation:
-#   x(t) = cos(H1*t) + B*cos(H2*t) + S*cos(H3*t)
-#   y(t) = sin(H1*t) + B*sin(H2*t) + S*sin(H3*t)
-#   z(t) = sin(B*t) + S*cos(B*t)
-#
-#   where:
-#     H1 = number of base loops (cos/sin cycles over t∈[0,10])
-#     H2 = number of braid wraps (secondary frequency)
-#     H3 = number of sub-harmonic ripples
-#     B  = amplitude for the H2 component
-#     S  = amplitude for the H3 component
-#
-#   A Möbius twist is applied in-plane:
-#     θ(t) = twist * t
-#     [x,y] → rotation by θ(t)
-#
-#   Finally, a quaternion [qx, qy, qz, qw=1] is normalized and applied to (x,y,z)
-#   to reorient the curve in 3D.
-#
-#   © 2025 iowyth hezel ulthiin
-
 from __future__ import annotations
 import numpy as np
-import tkinter as tk
-from tkinter import ttk
-from scipy.spatial.transform import Rotation as R
-import matplotlib
-matplotlib.use('TkAgg')  # Use the TkAgg backend for embedding Matplotlib in Tkinter
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from PyQt6 import QtWidgets
+from PyQt6.QtCore import Qt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
+from scipy.spatial.transform import Rotation as R
+import sys
 
 # -------- geometry ----------------------------------------------------
 def braided_curve(
@@ -75,10 +51,10 @@ def braided_curve(
     xr, yr, zr = R.from_quat(quat).apply(pts).T  
     return xr, yr, zr
 
-# -------- application -------------------------------------------------
-class BraiderApp:
+"""Update parameter value and redraw when a slider is moved."""
+class BraiderApp(QtWidgets.QWidget):
     """
-    A Tkinter-based application embedding a Matplotlib 3D plot.
+    A qt-based application embedding a Matplotlib 3D plot.
 
     Controls:
       - H1, H2, H3: fundamental frequencies of the harmonics
@@ -88,23 +64,23 @@ class BraiderApp:
       - Quat X/Y/Z: quaternion vector part for rotation
       - Zoom: scale of the 3D axes
     """
-
-    def __init__(self, master: tk.Tk):
-        self.master = master
-        master.title('Harmonic Braiding Visualizer')
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Harmonic Braiding Visualizer (PyQt6)")
+        self.resize(1000, 600)
 
         # Parameter definitions with labels, ranges, and initial values
         self.param_specs = {
-            'H1 (Harmonic 1)': {'min': 5.0,  'max': 15.0, 'step': 0.01,  'init': 9.71},
-            'H2 (Harmonic 2)': {'min': 5.0,  'max': 15.0, 'step': 0.01,  'init': 7.55},
-            'H3 (Harmonic 3)': {'min': 5.0,  'max': 15.0, 'step': 0.01,  'init': 8.63},
-            'B (Braiding Amp)': {'min': 0.001,'max':  2.0, 'step': 0.001, 'init': 0.01},
-            'S (Sub-harmonic Amp)': {'min': -5.0, 'max':  5.0, 'step': 0.001, 'init': 0.01},
-            'Twist Factor':      {'min': -2.0, 'max':  2.0, 'step': 0.01,  'init': 0.1},
-            'Quat X':            {'min': -1.0, 'max':  1.0, 'step': 0.001, 'init': 0.0},
-            'Quat Y':            {'min': -1.0, 'max':  1.0, 'step': 0.001, 'init': 0.0},
-            'Quat Z':            {'min': -1.0, 'max':  1.0, 'step': 0.001, 'init': 0.0},
-            'Zoom':              {'min':  0.1, 'max': 10.0, 'step': 0.1,  'init': 1.0},
+            'H1': {'label': 'H1 (Harmonic 1)', 'min': 5.0, 'max': 15.0, 'step': 0.01, 'init': 9.71},
+            'H2': {'label': 'H2 (Harmonic 2)', 'min': 5.0, 'max': 15.0, 'step': 0.01, 'init': 7.55},
+            'H3': {'label': 'H3 (Harmonic 3)', 'min': 5.0, 'max': 15.0, 'step': 0.01, 'init': 8.63},
+            'B':  {'label': 'B (Braiding Amp)', 'min': 0.001, 'max': 2.0, 'step': 0.001, 'init': 0.01},
+            'S':  {'label': 'S (Sub-harmonic Amp)', 'min': -5.0, 'max': 5.0, 'step': 0.001, 'init': 0.01},
+            'twist': {'label': 'Twist Factor', 'min': -2.0, 'max': 2.0, 'step': 0.01, 'init': 0.1},
+            'qx': {'label': 'Quat X', 'min': -1.0, 'max': 1.0, 'step': 0.001, 'init': 0.0},
+            'qy': {'label': 'Quat Y', 'min': -1.0, 'max': 1.0, 'step': 0.001, 'init': 0.0},
+            'qz': {'label': 'Quat Z', 'min': -1.0, 'max': 1.0, 'step': 0.001, 'init': 0.0},
+            'zoom': {'label': 'Zoom', 'min': 0.1, 'max': 10.0, 'step': 0.1, 'init': 1.0},
         }
 
         # Extract initial parameter values
@@ -112,52 +88,49 @@ class BraiderApp:
         # Time samples for the curve
         self.t = np.linspace(0, 10, 800)
 
-        # Create Matplotlib Figure and 3D axes in the GUI
-        self.fig = plt.Figure(figsize=(6, 6))
+        layout = QtWidgets.QHBoxLayout(self)
+        control_panel = QtWidgets.QVBoxLayout()
+
+        self.sliders = {}
+        for key, spec in self.param_specs.items():
+            label = QtWidgets.QLabel(spec['label'])
+            slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
+            slider.setMinimum(0)
+            slider.setMaximum(int((spec['max'] - spec['min']) / spec['step']))
+            slider.setValue(int((spec['init'] - spec['min']) / spec['step']))
+            slider.valueChanged.connect(lambda val, k=key: self.update_param(k, val))
+            control_panel.addWidget(label)
+            control_panel.addWidget(slider)
+            self.sliders[key] = (slider, spec)
+
+        layout.addLayout(control_panel)
+
+        self.fig = plt.Figure()
         self.ax = self.fig.add_subplot(111, projection='3d')
-        self.canvas = FigureCanvasTkAgg(self.fig, master)
-        self.canvas.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.canvas = FigureCanvas(self.fig)
+        layout.addWidget(self.canvas)
 
-        # Build control panel on the right
-        ctrl_frame = ttk.Frame(master)
-        ctrl_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=5)
-
-        # Create one slider per parameter
-        self.sliders: dict[str, tk.Scale] = {}
-        for name, spec in self.param_specs.items():
-            ttk.Label(ctrl_frame, text=name).pack(anchor='w')
-            slider = tk.Scale(
-                ctrl_frame,
-                from_=spec['min'], to=spec['max'],
-                resolution=spec['step'], orient=tk.HORIZONTAL,
-                length=200,
-                command=lambda val, n=name: self.on_slider(n, val)
-            )
-            slider.set(spec['init'])
-            slider.pack(fill=tk.X, pady=2)
-            self.sliders[name] = slider
-
-        # Initial draw
         self.plot()
 
-    def on_slider(self, name: str, val: str) -> None:
+    def update_param(self, key, slider_val):
         """Update parameter value and redraw when a slider is moved."""
-        self.params[name] = float(val)
+        spec = self.param_specs[key]
+        self.params[key] = spec['min'] + slider_val * spec['step']
         self.plot()
 
     def plot(self) -> None:
         """Compute the braided curve and update the 3D plot."""
         # Build argument dict for geometry function, excluding Zoom
         geom_kwargs = {
-            'H1': self.params['H1 (Harmonic 1)'],
-            'H2': self.params['H2 (Harmonic 2)'],
-            'H3': self.params['H3 (Harmonic 3)'],
-            'B':  self.params['B (Braiding Amp)'],
-            'S':  self.params['S (Sub-harmonic Amp)'],
-            'twist': self.params['Twist Factor'],
-            'qx': self.params['Quat X'],
-            'qy': self.params['Quat Y'],
-            'qz': self.params['Quat Z'],
+            'H1': self.params['H1'],
+            'H2': self.params['H2'],
+            'H3': self.params['H3'],
+            'B': self.params['B'],
+            'S': self.params['S'],
+            'twist': self.params['twist'],
+            'qx': self.params['qx'],
+            'qy': self.params['qy'],
+            'qz': self.params['qz'],
         }
 
         # Generate curve
@@ -168,7 +141,7 @@ class BraiderApp:
         self.ax.plot(xr, yr, zr, lw=2)
 
         # Apply zoom by scaling axis limits around the mean
-        zf = self.params['Zoom']
+        zf = self.params['zoom']
         rng = max(np.ptp(xr), np.ptp(yr), np.ptp(zr)) / (2 * zf)
         cx, cy, cz = np.mean(xr), np.mean(yr), np.mean(zr)
         self.ax.set_xlim(cx - rng, cx + rng)
@@ -179,7 +152,7 @@ class BraiderApp:
         self.canvas.draw()
 
 if __name__ == '__main__':
-    # Launch the application
-    root = tk.Tk()
-    app = BraiderApp(root)
-    root.mainloop()
+    app = QtWidgets.QApplication(sys.argv)
+    window = BraiderApp()
+    window.show()
+    sys.exit(app.exec())
